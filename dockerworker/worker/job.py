@@ -63,10 +63,12 @@ def process(job):
         logic.get_input_files(job, in_dir)
 
         with LockFile(config.LOCK_FILE):
-            mounted_ids, container_id = logic.create_containers(job, in_dir, out_dir)
+            mounted_ids, container_id = logic.create_containers(
+                job, in_dir, out_dir)
 
         while harbor.is_running(container_id):
-            logger.debug("Container is running. Sleeping for {} sec.".format(config.CONTAINER_CHECK_INTERVAL))
+            logger.debug("Container is running. Sleeping for {} sec.".format(
+                config.CONTAINER_CHECK_INTERVAL))
             time.sleep(config.CONTAINER_CHECK_INTERVAL)
 
         logic.write_std_output(container_id, out_dir)
