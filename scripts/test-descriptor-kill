@@ -35,13 +35,40 @@ def main():
     job = stub.CreateJob(job)
     print("Job", job)
 
+    i = 2
+    count = 2
     while True:
+
+        if i % count == 0:
+            # kill
+            job = stub.KillJob(RequestWithId(id=job.id))
+            output = 1
+            assert job.status == Job.KILLED, f"job is not killed: {Job.KILLED}"
+            print("job is killed.\nwait...")
+
+            # wait
+            time.sleep(3)
+            new_output = 1
+            assert output == new_output, "output has changed"
+
+            # continue
+            # TODO: add continue job
+            job.status = Job.RUNNING
+            job = stub.ModifyJob(job, timeout=5)  # TODO: check - createjob?
+            # TODO: посмотреть что резутьтат сохраняется
+            assert job.status in STATUS_IN_PROCESS, "job is not in progress"
+            print("...continue\n\n")
+
+            i = 0
+
         time.sleep(3)
         job = stub.GetJob(RequestWithId(id=job.id))
         print("[{}] Job :\n {}\n".format(time.time(), job))
 
         if job.status in STATUS_FINAL:
             break
+
+        i += 1
 
     if job.status == Job.KILLED:
         print("Job is killed!")
